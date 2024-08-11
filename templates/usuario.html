@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Usuário</title>
+    <title>{{ titulo }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,7 +35,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"], input[type="email"], input[type="password"] {
+        input[type="text"], input[type="email"], input[type="password"], select {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -54,30 +54,76 @@
         input[type="submit"]:hover {
             background-color: #555;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Cadastro de Usuário</h1>
-        <form action="/submit_form" method="POST">
-            <label for="name">Nome:</label>
-            <input type="text" id="name" name="name" required>
-            
-            <label for="email">E-mail:</label>
+        <h1>{{ titulo }}</h1>
+        <form action="{{ url_for('criar_usuario') }}" method="post">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" required>
+    
+            <label for="email">E-mail</label>
             <input type="email" id="email" name="email" required>
-            
-            <label for="password">Senha:</label>
+    
+            <label for="password">Senha</label>
             <input type="password" id="password" name="password" required>
-            
-            <label for="confirm-password">Confirmar Senha:</label>
-            <input type="password" id="confirm-password" name="confirm-password" required>
+
+            <label for="tipousuario">Tipo de Usuário</label>
+            <select id="tipousuario" name="tipousuario">
+                <option value="anunciante">Apenas Anunciante</option>
+                <option value="comprador">Apenas Comprador</option>
+                <option value="ambos">Ambos</option>
+            </select>
             
             <input type="submit" value="Cadastrar">
         </form>
+
+        <h4>Lista de Usuários</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Editar</th>
+                    <th>Deletar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.nome }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td><a href="{{ url_for('editar_usuario', id=usuario.id) }}">Editar</a></td>
+                        <td><a href="{{ url_for('deletar_usuario', id=usuario.id) }}" onclick="return confirmDelete()">Deletar</a></td>                        
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Nenhum usuário encontrado.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        function confirmDelete() {
+            return confirm('Tem certeza de que deseja excluir este usuário?');
+        }
+    </script>
+    
 </body>
 </html>
-
-
-
-

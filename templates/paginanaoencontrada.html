@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+    <title>Página Não Encontrada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 4em;
+            margin: 0;
+            color: #dc3545;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        a {
+            display: inline-block;
+            font-size: 1.1em;
+            color: #007bff;
+            text-decoration: none;
+            background-color: #e9ecef;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        a:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>404</h1>
+        <p>Ops! Página não encontrada!</p>
+        <p>Retorne ao sistema clicando no botão abaixo</p>
+        <a href="{{ url_for('index') }}">Voltar ao Sistema</a>
+    </div>
+</body>
+</html>

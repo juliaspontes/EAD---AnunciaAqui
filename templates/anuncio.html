@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro de Anúncio</title>
+    <title>{{ titulo }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,7 +20,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
         h1 {
@@ -35,16 +35,12 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input[type="text"], input[type="number"], input[type="file"], textarea, select {
+        input[type="text"], input[type="number"], input[type="submit"], select {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
-        }
-        textarea {
-            resize: vertical;
-            height: 100px;
         }
         input[type="submit"] {
             padding: 10px;
@@ -58,36 +54,92 @@
         input[type="submit"]:hover {
             background-color: #555;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        
+        input, select, label {
+        display: block;
+}
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Cadastro de Anúncio</h1>
-        <form action="/submit_ad_form" method="POST" enctype="multipart/form-data">
-            <label for="title">Título:</label>
-            <input type="text" id="title" name="title" required>
-            
-            <label for="description">Descrição:</label>
-            <textarea id="description" name="description" required></textarea>
-            
-            <label for="price">Preço:</label>
-            <input type="number" id="price" name="price" step="0.01" required>
-            
-            <label for="category">Categoria:</label>
-            <select id="category" name="category" required>
-                <option value="">Selecione uma categoria</option>
-                <option value="eletronicos">Eletrônicos</option>
-                <option value="mobiliario">Mobiliário</option>
-                <option value="roupas">Roupas</option>
-                <option value="veiculos">Veículos</option>
-                <option value="imoveis">Imóveis</option>
-            </select>
-            
-            <label for="image">Imagem:</label>
-            <input type="file" id="image" name="image" accept="image/*" required>
-            
-            <input type="submit" value="Cadastrar Anúncio">
-        </form>
+        <h1>{{ titulo }}</h1>
+        {% if form_action == 'criar' %}
+            <form action="{{ url_for('criar_anuncio') }}" method="post">
+                <label for="titulo">Título</label>
+                <input type="text" id="titulo" name="titulo" required>
+        
+                <label for="descricao">Descrição</label>
+                <input type="text" id="descricao" name="descricao" required>
+        
+                <label for="preco">Preço</label>
+                <input type="number" id="preco" name="preco" step="0.01" required>
+        
+                <label for="categoria_id">Categoria</label>
+                <select id="categoria_id" name="categoria_id" required>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="usuario_id">Usuário</label>
+                <select id="usuario_id" name="usuario_id" required>
+                    {% for usuario in usuarios %}
+                        <option value="{{ usuario.id }}">{{ usuario.nome }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="submit" value="Cadastrar">
+            </form>
+        {% else %}
+            <p>Formulário de criação não está ativado.</p>
+        {% endif %}
+
+        <h4>Lista de Anúncios</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Descrição</th>
+                    <th>Editar</th>
+                    <th>Deletar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anuncio in anuncios %}
+                    <tr>
+                        <td>{{ anuncio.titulo }}</td>
+                        <td>{{ anuncio.descricao }}</td>
+                        <td><a href="{{ url_for('editar_anuncio', id=anuncio.id) }}">Editar</a></td>
+                        <td><a href="{{ url_for('deletar_anuncio', id=anuncio.id) }}" onclick="return confirmDelete()">Deletar</a></td>                        
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">Nenhum anúncio encontrado.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+    <script>
+        function confirmDelete() {
+            return confirm('Tem certeza de que deseja excluir este anúncio?');
+        }
+    </script>
 </body>
 </html>
+
