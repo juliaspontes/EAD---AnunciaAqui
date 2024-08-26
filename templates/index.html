@@ -91,19 +91,14 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="#">Início</a>
-        <a href="anuncio.html">Anúncios</a>
-        <div class="dropdown">
-            <button class="dropbtn" onclick="toggleDropdown()">Cadastros</button>
-            <div id="dropdown-content" class="dropdown-content">
-                <a href="anuncio.html">Anúncios</a>
-                <a href="usuario.html">Usuários</a>
-                <a href="pergunta.html">Perguntas</a>
-            </div>
-        </div>
-        <a href="relCompras.html">Relatório de Compras</a>
-        <a href="relVendas.html">Relatório de Vendas</a>
-        <a href="favoritos.html">Favoritos</a>
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('anuncio') }}">Anúncios</a>
+        <a href="{{ url_for('usuario') }}">Usuários</a>
+        <a href="{{ url_for('pergunta') }}">Perguntas</a>
+        <a href="{{ url_for('rel_compras') }}">Relatório de Compras</a>
+        <a href="{{ url_for('rel_vendas') }}">Relatório de Vendas</a>
+        <a href="{{ url_for('favoritos') }}">Favoritos</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
     </div>
     <div class="container">
         <h1>Bem-vindo ao Anuncia Aqui. Nosso Site de Anúncios mais completo!</h1>

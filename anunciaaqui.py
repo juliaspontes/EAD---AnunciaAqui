@@ -1,27 +1,43 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import hashlib
+from flask_login import current_user, LoginManager, login_user, logout_user, login_required, UserMixin
+from flask_login import UserMixin
+
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:JPontes062730@localhost:3306/anunciaaqui'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:JPontes062730@localhost:3306/anunciaaqui'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://juliapontes:JPontes062730@juliapontes.mysql.pythonanywhere-services.com:3306/juliapontes$anunciaaqui'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-class Usuario(db.Model):
+app.secret_key = '123456'
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class Usuario(db.Model, UserMixin):
     __tablename__ = "usuario"
     id = db.Column('usuario_id', db.Integer, primary_key=True)
-    nome = db.Column('usuario_nome', db.String(256))
-    email = db.Column('usuario_email', db.String(256))
-    senha = db.Column('usuario_senha', db.String(256))
-    tipousuario = db.Column('usuario_tipo', db.String(50))
+    nome = db.Column('usuario_nome', db.String(256), nullable=False)
+    email = db.Column('usuario_email', db.String(256), unique=True, nullable=False)
+    senha = db.Column('usuario_senha', db.String(256), nullable=False)
+    tipousuario = db.Column('usuario_tipo', db.String(50), nullable=False)
 
     def __init__(self, nome, email, senha, tipousuario):
         self.nome = nome
         self.email = email
         self.senha = senha
         self.tipousuario = tipousuario
+
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return str(self.id)
 
 class Anuncio(db.Model):
     __tablename__ = "anuncio"
@@ -99,9 +115,37 @@ class Item_Lista_Favoritos(db.Model):
 def paginanaoencontrada(error):
     return render_template('paginanaoencontrada.html')
 
+@login_manager.user_loader
+def load_user(id):
+    return Usuario.query.get(id)
+
 @app.route("/")
 def index():
     return render_template('index.html', titulo="Menu Principal")
+
+@app.route("/login", methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        senha = hashlib.sha512(str(request.form.get('senha')).encode("utf-8")).hexdigest()
+
+        user = Usuario.query.filter_by(email=email, senha=senha).first()
+
+        if user:
+            login_user(user)
+            print(f"Usuário {user.nome} autenticado com sucesso.")
+            return redirect(url_for('index'))
+        else:
+            print("Credenciais inválidas.")
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 @app.route("/cadastro/usuario")
 def usuario():
@@ -112,12 +156,22 @@ def usuario():
 def criar_usuario():
     nome = request.form.get('nome')
     email = request.form.get('email')
-    senha = request.form.get('password')
+    senha = request.form.get('password')  
     tipousuario = request.form.get('tipousuario')
 
-    usuario = Usuario(nome=nome, email=email, senha=senha, tipousuario=tipousuario)
-    db.session.add(usuario)
-    db.session.commit()
+    if not nome or not email or not senha or not tipousuario:
+        return "Todos os campos são obrigatórios", 400
+
+    senha_hash = hashlib.sha512(senha.encode("utf-8")).hexdigest()
+
+    try:
+        usuario = Usuario(nome=nome, email=email, senha=senha_hash, tipousuario=tipousuario)
+        db.session.add(usuario)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()  
+        print(f"Erro ao criar usuário: {e}")
+        return "Erro ao criar usuário", 500
 
     return redirect(url_for('usuario'))
 
@@ -139,6 +193,7 @@ def editar_usuario(id):
     return render_template('usuariocadastrado.html', usuario=usuario, titulo="Usuario")
 
 @app.route("/usuario/deletar/<int:id>")
+@login_required
 def deletar_usuario(id):
     usuario = Usuario.query.get(id)
     if usuario:
@@ -147,6 +202,7 @@ def deletar_usuario(id):
     return redirect(url_for('usuario')) 
 
 @app.route("/cadastro/anuncio")
+@login_required
 def anuncio():
     anuncios = Anuncio.query.all()  
     usuarios = Usuario.query.all()  
@@ -154,6 +210,7 @@ def anuncio():
     return render_template('anuncio.html', titulo="Cadastro de Anúncio", anuncios=anuncios, usuarios=usuarios, categorias=categorias, form_action='criar')
 
 @app.route("/anuncio/criar", methods=['POST'])
+@login_required
 def criar_anuncio():
     if request.method == 'POST':
         titulo = request.form.get('titulo')
@@ -174,6 +231,7 @@ def detalhar_anuncio(id):
     return anuncio.id
 
 @app.route("/anuncio/editar/<int:id>", methods=['GET', 'POST'])
+@login_required
 def editar_anuncio(id):
     anuncio = Anuncio.query.get(id)
     categorias = Categoria.query.all()
@@ -190,6 +248,7 @@ def editar_anuncio(id):
 
 
 @app.route("/anuncio/deletar/<int:id>")
+@login_required
 def deletar_anuncio(id):
     anuncio = Anuncio.query.get(id)
     if anuncio:
@@ -198,26 +257,31 @@ def deletar_anuncio(id):
     return redirect(url_for('anuncio'))
 
 @app.route("/anuncios/pergunta")
+@login_required
 def pergunta():
     return render_template('pergunta.html', titulo="Perguntas Frequentes")
 
 @app.route("/anuncios/compra")
+@login_required
 def compra():
     return render_template('compra.html', titulo="Compras")
 
 @app.route("/anuncios/favoritos")
+@login_required
 def favoritos():
     return render_template('favoritos.html', titulo="Favoritos")
 
 @app.route("/relatorios/vendas")
+@login_required
 def rel_vendas():
     return render_template('relVendas.html', titulo="Relatório de Vendas")
 
 @app.route("/relatorios/compras")
+@login_required
 def rel_compras():
     return render_template('relCompras.html', titulo="Relatório de Compras")
 
-if __name__ == '__main__':
+if __name__ == 'anunciaaqui':
     with app.app_context():
         print("Criando todas as tabelas...")
         db.create_all()

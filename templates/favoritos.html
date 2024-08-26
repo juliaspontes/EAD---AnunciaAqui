@@ -10,18 +10,21 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            box-sizing: border-box;
         }
         .navbar {
             background-color: #333;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
         }
         .navbar a {
-            float: left;
             display: block;
             color: #f2f2f2;
             text-align: center;
             padding: 14px 20px;
             text-decoration: none;
+            font-size: 16px;
         }
         .navbar a:hover {
             background-color: #ddd;
@@ -29,10 +32,13 @@
         }
         .container {
             padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #333;
         }
         .grid-container {
             display: grid;
@@ -55,6 +61,7 @@
         .grid-item h3 {
             margin: 10px 0;
             font-size: 1.2em;
+            color: #333;
         }
         .grid-item p {
             margin: 0;
@@ -64,10 +71,8 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="#home">Início</a>
-        <a href="#favorites">Favoritos</a>
-        <a href="#about">Sobre</a>
-        <a href="#contact">Contato</a>
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
     </div>
     <div class="container">
         <h1>Meus Anúncios Favoritos</h1>
@@ -92,7 +97,6 @@
                 <h3>Anúncio 4</h3>
                 <p>Descrição breve do anúncio 4.</p>
             </div>
-            <!-- Adicione mais anúncios favoritos conforme necessário -->
         </div>
     </div>
 </body>

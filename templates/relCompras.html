@@ -10,18 +10,21 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            box-sizing: border-box;
         }
         .navbar {
             background-color: #333;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            padding: 0 10px;
         }
         .navbar a {
-            float: left;
-            display: block;
             color: #f2f2f2;
             text-align: center;
             padding: 14px 20px;
             text-decoration: none;
+            font-size: 16px;
         }
         .navbar a:hover {
             background-color: #ddd;
@@ -29,17 +32,21 @@
         }
         .container {
             padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #333;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            background-color: white;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
         th, td {
             padding: 12px;
@@ -57,10 +64,8 @@
 </head>
 <body>
     <div class="navbar">
-        <a href="#home">Início</a>
-        <a href="#purchases-report">Relatório de Compras</a>
-        <a href="#about">Sobre</a>
-        <a href="#contact">Contato</a>
+        <a href="{{ url_for('index') }}">Início</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
     </div>
     <div class="container">
         <h1>Relatório de Compras</h1>
@@ -100,7 +105,6 @@
                     <td>R$ 150,00</td>
                     <td>Entregue</td>
                 </tr>
-                <!-- Adicione mais linhas conforme necessário -->
             </tbody>
         </table>
     </div>
